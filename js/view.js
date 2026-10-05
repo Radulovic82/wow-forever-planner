@@ -1,6 +1,6 @@
 import { formatDeadline } from './countdown.js';
 import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp } from './phases.js';
-import { togglePick } from './picks.js';
+import { togglePick, danglingChoices, pruneChosen } from './picks.js';
 
 // Builds a DOM node. Children are appended as text nodes, never parsed as HTML.
 function el(tag, attrs = {}, ...children) {
@@ -82,7 +82,8 @@ function renderOption(decision, option, cur, ctx) {
         {
           class: 'pick',
           type: 'button',
-          onclick: () => ctx.onDraft(decision.id, { chosen: togglePick(cur.chosen, option.id, decision.maxPicks) }, true),
+          onclick: () =>
+            ctx.onDraft(decision.id, { chosen: togglePick(pruneChosen(decision, cur.chosen), option.id, decision.maxPicks) }, true),
         },
         picked ? 'Unpick' : 'Pick',
       ),
@@ -94,6 +95,18 @@ function renderBody(decision, cur, ctx) {
   return el(
     'div',
     { class: 'card-body' },
+    ctx.isOwner &&
+      danglingChoices(decision, cur.chosen).length > 0 &&
+      el(
+        'p',
+        { class: 'error' },
+        `No longer offered: ${danglingChoices(decision, cur.chosen).join(', ')}. `,
+        el(
+          'button',
+          { class: 'link', type: 'button', onclick: () => ctx.onDraft(decision.id, { chosen: pruneChosen(decision, cur.chosen) }, true) },
+          'Remove',
+        ),
+      ),
     decision.kind === 'choice' &&
       el(
         'div',

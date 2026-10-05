@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { togglePick, ownerStateError } from '../js/picks.js';
+import { togglePick, ownerStateError, danglingChoices, pruneChosen } from '../js/picks.js';
 
 test('picking replaces the choice when only one pick is allowed', () => {
   assert.deepEqual(togglePick([], 'orc', 1), ['orc']);
@@ -51,4 +51,25 @@ test('open and revisit never need a pick', () => {
 test('an unknown status or a chosen option that does not exist is refused', () => {
   assert.match(ownerStateError(choice, state({ status: 'done' })), /status/i);
   assert.match(ownerStateError(choice, state({ chosen: ['gnome'] })), /does not exist/);
+});
+
+const pro = { kind: 'choice', maxPicks: 2, options: [{ id: 'alchemy' }, { id: 'mining' }, { id: 'tailoring' }] };
+
+test('danglingChoices lists chosen ids that are no longer offered', () => {
+  assert.deepEqual(danglingChoices(pro, ['alchemy', 'removed']), ['removed']);
+  assert.deepEqual(danglingChoices(pro, ['alchemy']), []);
+});
+
+test('pruneChosen drops ids that are no longer offered and keeps the rest in order', () => {
+  assert.deepEqual(pruneChosen(pro, ['removed', 'mining', 'alchemy']), ['mining', 'alchemy']);
+});
+
+test('after pruning, a full multi-pick decision accepts a new pick again', () => {
+  const chosen = ['alchemy', 'removed']; // full at maxPicks 2, one of them dangling
+  assert.deepEqual(togglePick(chosen, 'mining', 2), ['alchemy', 'removed']); // stuck without pruning
+  assert.deepEqual(togglePick(pruneChosen(pro, chosen), 'mining', 2), ['alchemy', 'mining']);
+});
+
+test('a freeform decision keeps no choices: every chosen id is dangling', () => {
+  assert.deepEqual(danglingChoices({ kind: 'freeform', options: [] }, ['orc']), ['orc']);
 });

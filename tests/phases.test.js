@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp } from '../js/phases.js';
+import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, loadStatus } from '../js/phases.js';
 
 const DAY = 86400000;
 const NOW = Date.parse('2026-10-20T12:00:00Z');
@@ -69,4 +69,10 @@ test('nextUp skips decided and deadline-free decisions and sorts nearest first',
 test('nextUp honours the limit', () => {
   const list = [d('a', { deadline: at(1) }), d('b', { deadline: at(2) }), d('c', { deadline: at(3) })];
   assert.equal(nextUp(list, NOW, 2).length, 2);
+});
+
+test('an empty answer served from the cache means the backend was not reached', () => {
+  assert.equal(loadStatus(0, true), 'unreachable');
+  assert.equal(loadStatus(0, false), 'ready');
+  assert.equal(loadStatus(3, true), 'ready');
 });

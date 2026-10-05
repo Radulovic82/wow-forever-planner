@@ -21,3 +21,12 @@ export function ownerStateError(decision, state) {
   }
   return null;
 }
+
+// Chosen ids that the decision no longer offers (after a re-import removed an option or changed the kind).
+export function danglingChoices(decision, chosen) {
+  return chosen.filter((id) => !decision.options.some((o) => o.id === id));
+}
+
+export function pruneChosen(decision, chosen) {
+  return chosen.filter((id) => decision.options.some((o) => o.id === id));
+}

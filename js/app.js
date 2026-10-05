@@ -1,7 +1,8 @@
 import { LAUNCH_MS, getCountdown, formatZagreb } from './countdown.js';
 import { OWNER_UID } from './config.js';
-import { validateCatalog } from './catalog.js';
+import { runCatalogImport } from './importer.js';
 import { ownerStateError } from './picks.js';
+import { loadStatus } from './phases.js';
 import * as view from './view.js';
 
 const $ = (id) => document.getElementById(id);
@@ -11,6 +12,7 @@ const state = {
   user: null,
   store: null,
   loaded: false,
+  unreachable: false,
   expanded: new Set(),
   drafts: new Map(),
   errors: new Map(),
@@ -34,6 +36,7 @@ function setMessage(text, kind = 'info', lines = []) {
     }
     box.append(list);
   }
+  box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function tick() {
@@ -116,17 +119,18 @@ async function runImport(file) {
     setMessage('That file is not valid JSON. Nothing was written.', 'error');
     return;
   }
-  const result = validateCatalog(json);
-  if (!result.ok) {
-    setMessage('Import refused. Nothing was written.', 'error', result.errors);
-    return;
-  }
   try {
-    const existing = new Map(state.decisions.map((d) => [d.id, d]));
-    const out = await state.store.importDecisions(result.decisions, existing);
+    const out = await runCatalogImport(json, {
+      readExisting: state.store.readExistingDecisions,
+      commit: state.store.commitImport,
+    });
+    if (!out.ok) {
+      setMessage('Import refused. Nothing was written.', 'error', out.errors);
+      return;
+    }
     setMessage(`Imported. ${out.created} created, ${out.updated} updated, ${out.revisit} marked revisit.`, 'ok');
   } catch (error) {
-    setMessage(`Import failed: ${error.message}`, 'error');
+    setMessage(`Import failed: ${error.message}. Nothing was written.`, 'error');
   }
 }
 
@@ -148,9 +152,18 @@ if (state.store) {
     render();
   });
   state.store.subscribeDecisions(
-    (list) => {
+    (list, meta) => {
+      if (loadStatus(list.length, meta.fromCache) === 'unreachable') {
+        state.unreachable = true;
+        setMessage('Could not reach the decisions yet. Check the connection and reload.', 'error');
+      } else {
+        if (state.unreachable) {
+          state.unreachable = false;
+          setMessage('');
+        }
+        state.loaded = true;
+      }
       state.decisions = list;
-      state.loaded = true;
       render();
     },
     (error) => setMessage(`Could not read the decisions: ${error.message}`, 'error'),

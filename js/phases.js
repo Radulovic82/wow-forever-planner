@@ -38,3 +38,8 @@ export function nextUp(decisions, nowMs, limit = 3) {
     .sort((a, b) => a.msLeft - b.msLeft)
     .slice(0, limit);
 }
+
+// Firestore serves an empty cached answer when it cannot reach the backend.
+export function loadStatus(count, fromCache) {
+  return count === 0 && fromCache ? 'unreachable' : 'ready';
+}

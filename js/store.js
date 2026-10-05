@@ -10,6 +10,7 @@ import {
   getFirestore,
   collection,
   onSnapshot,
+  getDocsFromServer,
   doc,
   setDoc,
   writeBatch,
@@ -17,7 +18,6 @@ import {
   Timestamp,
 } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 import { firebaseConfig } from './config.js';
-import { mergeDecision } from './catalog.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -56,7 +56,7 @@ function fromDoc(snapshot) {
 }
 
 export function subscribeDecisions(onData, onError) {
-  return onSnapshot(decisionsRef, (snap) => onData(snap.docs.map(fromDoc)), onError);
+  return onSnapshot(decisionsRef, (snap) => onData(snap.docs.map(fromDoc), { fromCache: snap.metadata.fromCache }), onError);
 }
 
 export async function saveOwnerState(id, state) {
@@ -73,21 +73,21 @@ export async function saveOwnerState(id, state) {
   );
 }
 
-export async function importDecisions(decisions, existingById) {
+// Always asks the server, never the local cache, so an import cannot mistake an empty cache for an empty collection.
+export async function readExistingDecisions() {
+  const snap = await getDocsFromServer(decisionsRef);
+  return new Map(snap.docs.map((d) => [d.id, fromDoc(d)]));
+}
+
+export async function commitImport(writes) {
   const batch = writeBatch(db);
-  const tally = { created: 0, updated: 0, revisit: 0 };
-  for (const incoming of decisions) {
-    const { create, data } = mergeDecision(existingById.get(incoming.id) ?? null, incoming);
+  for (const { id, create, data } of writes) {
     const payload = {
       ...data,
       deadline: data.deadline ? Timestamp.fromDate(new Date(data.deadline)) : null,
       updatedAt: serverTimestamp(),
     };
-    batch.set(doc(db, 'decisions', incoming.id), payload, { merge: !create });
-    if (create) tally.created += 1;
-    else tally.updated += 1;
-    if (data.status === 'revisit') tally.revisit += 1;
+    batch.set(doc(db, 'decisions', id), payload, { merge: !create });
   }
   await batch.commit();
-  return tally;
 }
