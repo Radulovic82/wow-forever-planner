@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WoW Forever Planner</title>
+    <meta name="description" content="Horde Warlock planning for World of Warcraft: Forever, with a countdown to launch." />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <p class="eyebrow">World of Warcraft: Forever</p>
+      <h1>Horde Warlock planner</h1>
+      <div id="countdown" class="countdown" role="timer" aria-label="Countdown to launch">
+        <div class="unit"><span class="num" data-unit="days">--</span><span class="lbl">days</span></div>
+        <div class="unit"><span class="num" data-unit="hours">--</span><span class="lbl">hours</span></div>
+        <div class="unit"><span class="num" data-unit="minutes">--</span><span class="lbl">minutes</span></div>
+        <div class="unit"><span class="num" data-unit="seconds">--</span><span class="lbl">seconds</span></div>
+      </div>
+      <p id="countdown-note" class="countdown-note">until WoW Forever launches</p>
+      <p class="launch-line">Launch: <strong id="launch-label"></strong></p>
+    </header>
+
+    <main>
+      <section id="next-up" class="next-up"></section>
+      <div id="status-msg" class="msg" role="status" hidden></div>
+      <p id="empty-note" class="empty" hidden>Nothing here yet.</p>
+      <div id="phases"></div>
+    </main>
+
+    <footer>
+      <button id="auth-btn" class="link" type="button">Sign in with Google</button>
+      <div id="owner-panel" class="owner-panel" hidden></div>
+      <input id="import-file" type="file" accept="application/json,.json" hidden />
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

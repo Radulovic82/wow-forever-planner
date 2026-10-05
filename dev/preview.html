@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <p class="eyebrow">World of Warcraft: Forever</p>
+      <h1>Horde Warlock planner</h1>
+      <div id="countdown" class="countdown">
+        <div class="unit"><span class="num" data-unit="days">--</span><span class="lbl">days</span></div>
+        <div class="unit"><span class="num" data-unit="hours">--</span><span class="lbl">hours</span></div>
+        <div class="unit"><span class="num" data-unit="minutes">--</span><span class="lbl">minutes</span></div>
+        <div class="unit"><span class="num" data-unit="seconds">--</span><span class="lbl">seconds</span></div>
+      </div>
+      <p id="countdown-note" class="countdown-note"></p>
+      <p class="launch-line">Launch: <strong id="launch-label"></strong></p>
+    </header>
+    <main>
+      <section id="next-up" class="next-up"></section>
+      <div id="phases"></div>
+    </main>
+    <script type="module">
+      import { getCountdown, formatZagreb, LAUNCH_MS } from '../js/countdown.js';
+      import { validateCatalog } from '../js/catalog.js';
+      import * as view from '../js/view.js';
+
+      const params = new URLSearchParams(location.search);
+      const owner = params.get('owner') === '1';
+      const json = await (await fetch('../data/catalog.json')).json();
+      const decisions = validateCatalog(json).decisions.map((d) => ({
+        ...d, status: 'open', chosen: [], answer: '', reason: '',
+      }));
+      decisions.find((d) => d.id === 'race').status = 'decided';
+      decisions.find((d) => d.id === 'race').chosen = ['orc'];
+      decisions.find((d) => d.id === 'race').reason = 'Blood Fury.';
+
+      const expanded = new Set(params.get('open') ? params.get('open').split(',') : []);
+      const drafts = new Map();
+      const errors = new Map();
+      function render() {
+        const ctx = {
+          isOwner: owner, expanded, drafts, errors, nowMs: Date.now(),
+          onToggle(id) { expanded.has(id) ? expanded.delete(id) : expanded.add(id); render(); },
+          onDraft(id, patch, again) {
+            const d = decisions.find((x) => x.id === id);
+            const cur = drafts.get(id) || { status: d.status, chosen: d.chosen, answer: d.answer, reason: d.reason };
+            drafts.set(id, { ...cur, ...patch });
+            if (again) render();
+          },
+          onSave() {},
+        };
+        view.renderNextUp(document.getElementById('next-up'), decisions, Date.now(), (id) => { expanded.add(id); render(); });
+        view.renderPhases(document.getElementById('phases'), decisions, ctx);
+      }
+      document.getElementById('launch-label').textContent = formatZagreb(LAUNCH_MS);
+      view.updateCountdown(getCountdown(Date.now()));
+      setInterval(() => view.updateCountdown(getCountdown(Date.now())), 1000);
+      render();
+    </script>
+  </body>
+</html>
