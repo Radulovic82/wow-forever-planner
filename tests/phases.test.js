@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, loadStatus, daysLabel } from '../js/phases.js';
+import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, loadStatus, daysLabel, donePhases } from '../js/phases.js';
 
 const DAY = 86400000;
 const NOW = Date.parse('2026-10-20T12:00:00Z');
@@ -82,4 +82,20 @@ test('daysLabel says overdue, due now, or how many days are left', () => {
   assert.equal(daysLabel({ overdue: false, daysLeft: 0 }), 'due now');
   assert.equal(daysLabel({ overdue: false, daysLeft: 1 }), '1 day left');
   assert.equal(daysLabel({ overdue: false, daysLeft: 22 }), '22 days left');
+});
+
+test('donePhases lists phases where every decision is decided', () => {
+  const list = [
+    d('a', { phase: 'before-launch', status: 'decided' }),
+    d('b', { phase: 'before-launch', status: 'decided' }),
+    d('c', { phase: 'launch-prep', status: 'decided' }),
+    d('x', { phase: 'leveling', status: 'decided' }),
+    d('y', { phase: 'leveling', status: 'open' }),
+    d('z', { phase: 'endgame', status: 'revisit' }),
+  ];
+  assert.deepEqual(donePhases(list), ['before-launch', 'launch-prep']);
+});
+
+test('donePhases ignores phases that have no decisions', () => {
+  assert.deepEqual(donePhases([]), []);
 });

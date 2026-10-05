@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { togglePick, ownerStateError, danglingChoices, pruneChosen } from '../js/picks.js';
+import { togglePick, ownerStateError, danglingChoices, pruneChosen, conclusion, phaseSummary } from '../js/picks.js';
 
 test('picking replaces the choice when only one pick is allowed', () => {
   assert.deepEqual(togglePick([], 'orc', 1), ['orc']);
@@ -72,4 +72,37 @@ test('after pruning, a full multi-pick decision accepts a new pick again', () =>
 
 test('a freeform decision keeps no choices: every chosen id is dangling', () => {
   assert.deepEqual(danglingChoices({ kind: 'freeform', options: [] }, ['orc']), ['orc']);
+});
+
+const named = {
+  kind: 'choice',
+  options: [{ id: 'orc', name: 'Orc' }, { id: 'troll', name: 'Troll' }],
+};
+
+test('conclusion of a choice is the names of the picked options in pick order', () => {
+  assert.equal(conclusion(named, { chosen: ['troll', 'orc'], answer: '' }), 'Troll, Orc');
+});
+
+test('conclusion of a freeform decision is the trimmed written answer', () => {
+  assert.equal(conclusion({ kind: 'freeform', options: [] }, { chosen: [], answer: '  Zarg  ' }), 'Zarg');
+});
+
+test('conclusion falls back to the id when the option is no longer offered', () => {
+  assert.equal(conclusion(named, { chosen: ['gnome'], answer: '' }), 'gnome');
+});
+
+test('conclusion is empty when nothing is picked or written', () => {
+  assert.equal(conclusion(named, { chosen: [], answer: '' }), '');
+  assert.equal(conclusion({ kind: 'freeform', options: [] }, { chosen: [], answer: '   ' }), '');
+});
+
+test('phaseSummary joins the conclusions of decided decisions in order and skips the rest', () => {
+  const list = [
+    { ...named, status: 'decided', chosen: ['orc'], answer: '' },
+    { ...named, status: 'open', chosen: ['troll'], answer: '' },
+    { kind: 'freeform', options: [], status: 'decided', chosen: [], answer: 'Zarg' },
+    { kind: 'freeform', options: [], status: 'decided', chosen: [], answer: '' },
+  ];
+  assert.equal(phaseSummary(list), 'Orc, Zarg');
+  assert.equal(phaseSummary([]), '');
 });

@@ -30,3 +30,17 @@ export function danglingChoices(decision, chosen) {
 export function pruneChosen(decision, chosen) {
   return chosen.filter((id) => decision.options.some((o) => o.id === id));
 }
+
+// What a decided decision concluded: the picked option names, or the written answer.
+export function conclusion(decision, state) {
+  if (decision.kind === 'freeform') return state.answer.trim();
+  return state.chosen.map((id) => (decision.options.find((o) => o.id === id) || {}).name || id).join(', ');
+}
+
+export function phaseSummary(list) {
+  return list
+    .filter((d) => d.status === 'decided')
+    .map((d) => conclusion(d, d))
+    .filter((text) => text.length > 0)
+    .join(', ');
+}

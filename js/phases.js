@@ -49,3 +49,8 @@ export function daysLabel({ overdue, daysLeft }) {
   if (daysLeft <= 0) return 'due now';
   return `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
 }
+
+export function donePhases(decisions) {
+  const groups = groupByPhase(decisions);
+  return PHASES.filter((p) => groups[p.id].length > 0 && groups[p.id].every((x) => x.status === 'decided')).map((p) => p.id);
+}

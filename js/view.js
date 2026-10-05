@@ -1,6 +1,6 @@
 import { formatDeadline, formatCompact } from './countdown.js';
 import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, daysLabel } from './phases.js';
-import { togglePick, danglingChoices, pruneChosen } from './picks.js';
+import { togglePick, danglingChoices, pruneChosen, conclusion, phaseSummary } from './picks.js';
 
 // Builds a DOM node. Children are appended as text nodes, never parsed as HTML.
 function el(tag, attrs = {}, ...children) {
@@ -122,6 +122,8 @@ function renderStatusControl(decision, cur, ctx) {
 function renderBody(decision, cur, ctx) {
   const error = ctx.errors.get(decision.id);
   const stale = ctx.isOwner ? danglingChoices(decision, cur.chosen) : [];
+  const decided = cur.status === 'decided';
+  const showOptions = !decided || ctx.optionsShown.has(decision.id);
   return el(
     'div',
     { class: 'card-body', id: `body-${decision.id}` },
@@ -137,6 +139,19 @@ function renderBody(decision, cur, ctx) {
         ),
       ),
     decision.kind === 'choice' &&
+      decided &&
+      el(
+        'button',
+        {
+          class: 'link toggle-options',
+          type: 'button',
+          'aria-expanded': String(showOptions),
+          onclick: () => ctx.onToggleOptions(decision.id),
+        },
+        showOptions ? 'Hide the options' : 'Show the options',
+      ),
+    decision.kind === 'choice' &&
+      showOptions &&
       el(
         'div',
         { class: 'options-wrap' },
@@ -144,14 +159,14 @@ function renderBody(decision, cur, ctx) {
         el('div', { class: 'options' }, decision.options.map((o) => renderOption(decision, o, cur, ctx))),
       ),
     decision.kind === 'freeform' &&
-      (ctx.isOwner
-        ? el(
-            'label',
-            { class: 'field' },
-            'Your answer',
-            el('textarea', { rows: 4, oninput: (e) => ctx.onDraft(decision.id, { answer: e.target.value }, false) }, cur.answer),
-          )
-        : el('p', { class: 'answer' }, cur.answer || 'Not answered yet.')),
+      ctx.isOwner &&
+      el(
+        'label',
+        { class: 'field' },
+        'Your answer',
+        el('textarea', { rows: 4, oninput: (e) => ctx.onDraft(decision.id, { answer: e.target.value }, false) }, cur.answer),
+      ),
+    decision.kind === 'freeform' && !ctx.isOwner && !decided && el('p', { class: 'answer' }, cur.answer || 'Not answered yet.'),
     ctx.isOwner
       ? el(
           'label',
@@ -159,7 +174,7 @@ function renderBody(decision, cur, ctx) {
           'Why',
           el('textarea', { rows: 3, oninput: (e) => ctx.onDraft(decision.id, { reason: e.target.value }, false) }, cur.reason),
         )
-      : cur.reason && el('p', { class: 'reason' }, `Why: ${cur.reason}`),
+      : !decided && cur.reason && el('p', { class: 'reason' }, `Why: ${cur.reason}`),
     ctx.isOwner &&
       el(
         'div',
@@ -173,23 +188,23 @@ function renderBody(decision, cur, ctx) {
 
 function renderCard(decision, ctx) {
   const cur = currentState(decision, ctx);
-  const open = ctx.expanded.has(decision.id);
+  const decided = cur.status === 'decided';
+  // A decided freeform card has nothing more to show a visitor, so it does not open.
+  const expandable = !(decided && decision.kind === 'freeform' && !ctx.isOwner);
+  const open = expandable && ctx.expanded.has(decision.id);
   const info = decision.deadline ? deadlineInfo(decision.deadline, ctx.nowMs) : null;
-  const summary =
-    decision.kind === 'freeform'
-      ? cur.answer
-      : cur.chosen.map((id) => (decision.options.find((o) => o.id === id) || {}).name || id).join(', ');
+  const text = conclusion(decision, cur);
   return el(
     'article',
     { class: `card status-${cur.status}${open ? ' open' : ''}`, id: `card-${decision.id}` },
     el(
       'button',
       {
-        class: 'card-head',
+        class: `card-head${expandable ? '' : ' static'}`,
         type: 'button',
-        'aria-expanded': String(open),
-        'aria-controls': `body-${decision.id}`,
-        onclick: () => ctx.onToggle(decision.id),
+        'aria-expanded': expandable ? String(open) : false,
+        'aria-controls': expandable ? `body-${decision.id}` : false,
+        onclick: expandable ? () => ctx.onToggle(decision.id) : false,
       },
       el('span', { class: 'card-title' }, decision.title),
       el(
@@ -199,13 +214,31 @@ function renderCard(decision, ctx) {
         info &&
           el(
             'span',
-            { class: `chip chip-deadline${info.urgent && cur.status !== 'decided' ? ' urgent' : ''}` },
-            info.overdue && cur.status !== 'decided' ? 'overdue' : `due ${formatDeadline(decision.deadline)}`,
+            { class: `chip chip-deadline${info.urgent && !decided ? ' urgent' : ''}` },
+            info.overdue && !decided ? 'overdue' : `due ${formatDeadline(decision.deadline)}`,
           ),
       ),
-      summary && el('span', { class: 'summary' }, summary),
+      decided && text
+        ? el(
+            'span',
+            { class: 'conclusion' },
+            el('span', { class: 'conclusion-label' }, 'Conclusion'),
+            el('span', { class: 'conclusion-pick' }, text),
+            cur.reason && el('span', { class: 'conclusion-why' }, cur.reason),
+          )
+        : text && el('span', { class: 'summary' }, text),
     ),
     open && renderBody(decision, cur, ctx),
+  );
+}
+
+export function renderTools(container, { visible, onExpandAll, onCollapseAll }) {
+  container.replaceChildren();
+  container.hidden = !visible;
+  if (!visible) return;
+  container.append(
+    el('button', { class: 'link', type: 'button', onclick: onExpandAll }, 'Expand all'),
+    el('button', { class: 'link', type: 'button', onclick: onCollapseAll }, 'Collapse all'),
   );
 }
 
@@ -215,18 +248,34 @@ export function renderPhases(container, decisions, ctx) {
   for (const phase of PHASES) {
     const list = groups[phase.id];
     const progress = phaseProgress(list);
+    const folded = ctx.foldedPhases.has(phase.id);
     const state =
       progress.total > 0 && progress.decided === progress.total ? 'done' : progress.decided > 0 ? 'going' : 'idle';
     const percent = progress.total > 0 ? Math.round((progress.decided / progress.total) * 100) : 0;
+    const summary = folded ? phaseSummary(list) : '';
     container.append(
       el(
         'section',
-        { class: `phase phase-${state}` },
+        { class: `phase phase-${state}${folded ? ' folded' : ''}` },
         el('span', { class: 'node', 'aria-hidden': 'true' }),
         el(
           'header',
           { class: 'phase-head' },
-          el('h2', {}, phase.label),
+          el(
+            'h2',
+            {},
+            el(
+              'button',
+              {
+                class: 'phase-toggle',
+                type: 'button',
+                'aria-expanded': String(!folded),
+                'aria-controls': `phase-${phase.id}`,
+                onclick: () => ctx.onTogglePhase(phase.id),
+              },
+              phase.label,
+            ),
+          ),
           el('span', { class: 'range' }, phase.range),
           list.length > 0 &&
             el(
@@ -236,8 +285,14 @@ export function renderPhases(container, decisions, ctx) {
               `${progress.decided} of ${progress.total} decided`,
             ),
         ),
-        list.length === 0 && phase.placeholder && el('p', { class: 'placeholder' }, phase.placeholder),
-        list.map((d) => renderCard(d, ctx)),
+        folded
+          ? summary && el('p', { class: 'phase-summary' }, summary)
+          : el(
+              'div',
+              { class: 'phase-list', id: `phase-${phase.id}` },
+              list.length === 0 && phase.placeholder && el('p', { class: 'placeholder' }, phase.placeholder),
+              list.map((d) => renderCard(d, ctx)),
+            ),
       ),
     );
   }

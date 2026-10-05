@@ -2,7 +2,7 @@ import { LAUNCH_MS, getCountdown, formatZagreb } from './countdown.js';
 import { OWNER_UID } from './config.js';
 import { runCatalogImport } from './importer.js';
 import { ownerStateError } from './picks.js';
-import { loadStatus } from './phases.js';
+import { loadStatus, donePhases } from './phases.js';
 import * as view from './view.js';
 
 const $ = (id) => document.getElementById(id);
@@ -14,6 +14,9 @@ const state = {
   loaded: false,
   unreachable: false,
   expanded: new Set(),
+  foldedPhases: new Set(),
+  optionsShown: new Set(),
+  foldInit: false,
   drafts: new Map(),
   errors: new Map(),
 };
@@ -54,12 +57,24 @@ function viewContext(nowMs) {
   return {
     isOwner: isOwner(),
     expanded: state.expanded,
+    foldedPhases: state.foldedPhases,
+    optionsShown: state.optionsShown,
     drafts: state.drafts,
     errors: state.errors,
     nowMs,
     onToggle(id) {
       if (state.expanded.has(id)) state.expanded.delete(id);
       else state.expanded.add(id);
+      render();
+    },
+    onTogglePhase(id) {
+      if (state.foldedPhases.has(id)) state.foldedPhases.delete(id);
+      else state.foldedPhases.add(id);
+      render();
+    },
+    onToggleOptions(id) {
+      if (state.optionsShown.has(id)) state.optionsShown.delete(id);
+      else state.optionsShown.add(id);
       render();
     },
     onDraft(id, patch, rerender) {
@@ -83,6 +98,22 @@ function render() {
   $('auth-btn').hidden = Boolean(state.user);
   view.renderNextUp($('next-up'), state.decisions, nowMs, openCard);
   view.updateStickyNext(state.decisions, nowMs);
+  view.renderTools($('tools'), {
+    visible: state.decisions.length > 0,
+    onExpandAll: () => {
+      for (const d of state.decisions) {
+        state.expanded.add(d.id);
+        state.optionsShown.add(d.id);
+      }
+      state.foldedPhases.clear();
+      render();
+    },
+    onCollapseAll: () => {
+      state.expanded.clear();
+      state.optionsShown.clear();
+      render();
+    },
+  });
   view.renderPhases($('phases'), state.decisions, viewContext(nowMs));
   view.renderOwnerPanel($('owner-panel'), {
     user: state.user,
@@ -172,6 +203,11 @@ if (state.store) {
         state.loaded = true;
       }
       state.decisions = list;
+      if (state.loaded && !state.foldInit) {
+        // Phases that are already fully decided start folded, once.
+        for (const id of donePhases(list)) state.foldedPhases.add(id);
+        state.foldInit = true;
+      }
       render();
     },
     (error) => setMessage(`Could not read the decisions: ${error.message}`, 'error'),

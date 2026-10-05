@@ -26,6 +26,7 @@
     </header>
     <main>
       <section id="next-up" class="next-up"></section>
+      <div id="tools" class="tools" hidden></div>
       <div id="phases" class="phases"></div>
     </main>
     <script type="module">
@@ -39,16 +40,27 @@
       const decisions = validateCatalog(json).decisions.map((d) => ({
         ...d, status: 'open', chosen: [], answer: '', reason: '',
       }));
-      decisions.find((d) => d.id === 'race').status = 'decided';
-      decisions.find((d) => d.id === 'race').chosen = ['orc'];
-      decisions.find((d) => d.id === 'race').reason = 'Blood Fury.';
+      const get = (id) => decisions.find((d) => d.id === id);
+      get('race').status = 'decided';
+      get('race').chosen = ['orc'];
+      get('race').reason = 'Blood Fury.';
+      if (params.get('done') === '1') {
+        get('pack').status = 'decided';
+        get('pack').chosen = ['epic'];
+        get('pack').reason = 'The extra 30 days of game time cover launch month.';
+        get('names').status = 'decided';
+        get('names').answer = 'Zargnak Dreadmaw, Zarg Embershade';
+        get('names').reason = 'Short and easy to type.';
+      }
 
       const expanded = new Set(params.get('open') ? params.get('open').split(',') : []);
+      const foldedPhases = new Set(params.get('fold') ? params.get('fold').split(',') : []);
+      const optionsShown = new Set(params.get('options') ? params.get('options').split(',') : []);
       const drafts = new Map();
       const errors = new Map();
       function render() {
         const ctx = {
-          isOwner: owner, expanded, drafts, errors, nowMs: Date.now(),
+          isOwner: owner, expanded, foldedPhases, optionsShown, drafts, errors, nowMs: Date.now(),
           onToggle(id) { expanded.has(id) ? expanded.delete(id) : expanded.add(id); render(); },
           onDraft(id, patch, again) {
             const d = decisions.find((x) => x.id === id);
@@ -56,9 +68,12 @@
             drafts.set(id, { ...cur, ...patch });
             if (again) render();
           },
+          onTogglePhase(id) { foldedPhases.has(id) ? foldedPhases.delete(id) : foldedPhases.add(id); render(); },
+          onToggleOptions(id) { optionsShown.has(id) ? optionsShown.delete(id) : optionsShown.add(id); render(); },
           onSave() {},
         };
         view.renderNextUp(document.getElementById('next-up'), decisions, Date.now(), (id) => { expanded.add(id); render(); });
+        view.renderTools(document.getElementById('tools'), { visible: true, onExpandAll() { decisions.forEach((d) => { expanded.add(d.id); optionsShown.add(d.id); }); foldedPhases.clear(); render(); }, onCollapseAll() { expanded.clear(); optionsShown.clear(); render(); } });
         view.renderPhases(document.getElementById('phases'), decisions, ctx);
         view.updateStickyNext(decisions, Date.now());
       }
