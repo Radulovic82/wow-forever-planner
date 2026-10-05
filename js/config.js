@@ -9,4 +9,4 @@ export const firebaseConfig = {
 };
 
 // Filled in during bootstrap (Task 9), after the first sign-in shows the user ID.
-export const OWNER_UID = "";
+export const OWNER_UID = "r6YUnQdYX6bJNkn6IvZ3j7zwPw12";
