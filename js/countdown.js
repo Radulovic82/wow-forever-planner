@@ -36,3 +36,8 @@ export function formatZagreb(ms) {
 export function formatDeadline(iso) {
   return formatZagreb(Date.parse(iso));
 }
+
+export function formatCompact(cd) {
+  if (cd.live) return `Live for ${cd.days}d ${cd.hours}h ${cd.minutes}m`;
+  return `${cd.days}d ${cd.hours}h ${cd.minutes}m ${cd.seconds}s`;
+}

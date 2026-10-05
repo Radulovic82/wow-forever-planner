@@ -5,27 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>WoW Forever Planner</title>
     <meta name="description" content="Horde Warlock planning for World of Warcraft: Forever, with a countdown to launch." />
+    <meta name="theme-color" content="#0e0908" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <div id="sticky-bar" class="sticky-bar" aria-hidden="true">
+      <span id="sticky-time" class="sticky-time"></span>
+      <span id="sticky-next" class="sticky-next"></span>
+    </div>
+
     <header class="hero">
-      <p class="eyebrow">World of Warcraft: Forever</p>
-      <h1>Horde Warlock planner</h1>
-      <div id="countdown" class="countdown" role="timer" aria-label="Countdown to launch">
-        <div class="unit"><span class="num" data-unit="days">--</span><span class="lbl">days</span></div>
-        <div class="unit"><span class="num" data-unit="hours">--</span><span class="lbl">hours</span></div>
-        <div class="unit"><span class="num" data-unit="minutes">--</span><span class="lbl">minutes</span></div>
-        <div class="unit"><span class="num" data-unit="seconds">--</span><span class="lbl">seconds</span></div>
+      <div class="hero-inner">
+        <h1>Horde Warlock planner</h1>
+        <p class="launch-line">WoW Forever launches <strong id="launch-label"></strong></p>
+        <div id="countdown" class="countdown" role="timer" aria-label="Countdown to launch">
+          <div class="unit"><span class="num" data-unit="days">--</span><span class="lbl">days</span></div>
+          <div class="unit"><span class="num" data-unit="hours">--</span><span class="lbl">hours</span></div>
+          <div class="unit"><span class="num" data-unit="minutes">--</span><span class="lbl">minutes</span></div>
+          <div class="unit"><span class="num" data-unit="seconds">--</span><span class="lbl">seconds</span></div>
+        </div>
+        <p id="countdown-note" class="countdown-note">until WoW Forever launches</p>
       </div>
-      <p id="countdown-note" class="countdown-note">until WoW Forever launches</p>
-      <p class="launch-line">Launch: <strong id="launch-label"></strong></p>
     </header>
 
     <main>
       <section id="next-up" class="next-up"></section>
       <div id="status-msg" class="msg" role="status" hidden></div>
       <p id="empty-note" class="empty" hidden>Nothing here yet.</p>
-      <div id="phases"></div>
+      <div id="phases" class="phases"></div>
     </main>
 
     <footer>

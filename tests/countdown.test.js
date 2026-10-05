@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { LAUNCH_MS, getCountdown, formatZagreb, formatDeadline } from '../js/countdown.js';
+import { LAUNCH_MS, getCountdown, formatZagreb, formatDeadline, formatCompact } from '../js/countdown.js';
 
 test('launch instant is 23:00 UTC on 4 Nov 2026', () => {
   assert.equal(new Date(LAUNCH_MS).toISOString(), '2026-11-04T23:00:00.000Z');
@@ -46,4 +46,14 @@ test('the label does not depend on the viewer timezone', () => {
     encoding: 'utf8',
   });
   assert.equal(out, 'Thu 5 Nov 2026, 00:00 Zagreb time');
+});
+
+test('formatCompact writes the countdown on one short line', () => {
+  const cd = getCountdown(LAUNCH_MS - (26 * 3600 + 3 * 60 + 4) * 1000);
+  assert.equal(formatCompact(cd), '1d 2h 3m 4s');
+});
+
+test('formatCompact switches to time since launch once live', () => {
+  const cd = getCountdown(LAUNCH_MS + (2 * 86400 + 5 * 3600 + 6 * 60 + 7) * 1000);
+  assert.equal(formatCompact(cd), 'Live for 2d 5h 6m');
 });

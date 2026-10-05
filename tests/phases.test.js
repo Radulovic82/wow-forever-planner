@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, loadStatus } from '../js/phases.js';
+import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, loadStatus, daysLabel } from '../js/phases.js';
 
 const DAY = 86400000;
 const NOW = Date.parse('2026-10-20T12:00:00Z');
@@ -75,4 +75,11 @@ test('an empty answer served from the cache means the backend was not reached', 
   assert.equal(loadStatus(0, true), 'unreachable');
   assert.equal(loadStatus(0, false), 'ready');
   assert.equal(loadStatus(3, true), 'ready');
+});
+
+test('daysLabel says overdue, due now, or how many days are left', () => {
+  assert.equal(daysLabel({ overdue: true, daysLeft: -2 }), 'overdue');
+  assert.equal(daysLabel({ overdue: false, daysLeft: 0 }), 'due now');
+  assert.equal(daysLabel({ overdue: false, daysLeft: 1 }), '1 day left');
+  assert.equal(daysLabel({ overdue: false, daysLeft: 22 }), '22 days left');
 });

@@ -43,3 +43,9 @@ export function nextUp(decisions, nowMs, limit = 3) {
 export function loadStatus(count, fromCache) {
   return count === 0 && fromCache ? 'unreachable' : 'ready';
 }
+
+export function daysLabel({ overdue, daysLeft }) {
+  if (overdue) return 'overdue';
+  if (daysLeft <= 0) return 'due now';
+  return `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
+}

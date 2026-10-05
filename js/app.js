@@ -82,6 +82,7 @@ function render() {
   $('empty-note').hidden = !(state.loaded && state.decisions.length === 0);
   $('auth-btn').hidden = Boolean(state.user);
   view.renderNextUp($('next-up'), state.decisions, nowMs, openCard);
+  view.updateStickyNext(state.decisions, nowMs);
   view.renderPhases($('phases'), state.decisions, viewContext(nowMs));
   view.renderOwnerPanel($('owner-panel'), {
     user: state.user,
@@ -139,6 +140,13 @@ $('launch-label').textContent = formatZagreb(LAUNCH_MS);
 tick();
 setInterval(tick, 1000);
 render();
+
+// Show the slim countdown bar once the hero has scrolled out of view.
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([entry]) => document.body.classList.toggle('show-sticky', !entry.isIntersecting)).observe(
+    document.querySelector('.hero'),
+  );
+}
 
 try {
   state.store = await import('./store.js');

@@ -1,5 +1,5 @@
-import { formatDeadline } from './countdown.js';
-import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp } from './phases.js';
+import { formatDeadline, formatCompact } from './countdown.js';
+import { PHASES, groupByPhase, phaseProgress, deadlineInfo, nextUp, daysLabel } from './phases.js';
 import { togglePick, danglingChoices, pruneChosen } from './picks.js';
 
 // Builds a DOM node. Children are appended as text nodes, never parsed as HTML.
@@ -26,6 +26,15 @@ export function updateCountdown(cd) {
   document.getElementById('countdown-note').textContent = cd.live
     ? 'WoW Forever is live. Time since launch.'
     : 'until WoW Forever launches';
+  const sticky = document.getElementById('sticky-time');
+  if (sticky) sticky.textContent = formatCompact(cd);
+}
+
+export function updateStickyNext(decisions, nowMs) {
+  const node = document.getElementById('sticky-next');
+  if (!node) return;
+  const [first] = nextUp(decisions, nowMs, 1);
+  node.textContent = first ? `Next: ${first.decision.title} ${daysLabel(first)}` : '';
 }
 
 export function renderNextUp(container, decisions, nowMs, onOpen) {
@@ -33,17 +42,17 @@ export function renderNextUp(container, decisions, nowMs, onOpen) {
   const items = nextUp(decisions, nowMs, 4);
   if (items.length === 0) return;
   container.append(
-    el('h2', {}, 'Next up'),
+    el('h2', { class: 'section-title' }, 'Next up'),
     el(
       'ul',
       { class: 'next-list' },
-      items.map(({ decision, daysLeft, overdue, urgent }) =>
+      items.map((item) =>
         el(
           'li',
-          { class: urgent ? 'urgent' : '' },
-          el('button', { class: 'link', type: 'button', onclick: () => onOpen(decision.id) }, decision.title),
-          el('span', { class: 'when' }, overdue ? 'overdue' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`),
-          el('span', { class: 'when-abs' }, formatDeadline(decision.deadline)),
+          { class: item.urgent ? 'urgent' : '' },
+          el('span', { class: 'when' }, daysLabel(item)),
+          el('button', { class: 'link', type: 'button', onclick: () => onOpen(item.decision.id) }, item.decision.title),
+          el('span', { class: 'when-abs' }, formatDeadline(item.decision.deadline)),
         ),
       ),
     ),
@@ -66,7 +75,7 @@ function renderOption(decision, option, cur, ctx) {
   return el(
     'div',
     { class: `option${picked ? ' picked' : ''}` },
-    el('h4', {}, option.name, picked && el('span', { class: 'tick' }, ' (picked)')),
+    el('h3', {}, option.name, picked && el('span', { class: 'badge' }, 'Picked')),
     option.pros.length > 0 && el('ul', { class: 'pros' }, option.pros.map((t) => el('li', {}, t))),
     option.cons.length > 0 && el('ul', { class: 'cons' }, option.cons.map((t) => el('li', {}, t))),
     option.note && el('p', { class: 'note' }, option.note),
@@ -82,6 +91,7 @@ function renderOption(decision, option, cur, ctx) {
         {
           class: 'pick',
           type: 'button',
+          'aria-label': `${picked ? 'Unpick' : 'Pick'} ${option.name}`,
           onclick: () =>
             ctx.onDraft(decision.id, { chosen: togglePick(pruneChosen(decision, cur.chosen), option.id, decision.maxPicks) }, true),
         },
@@ -90,17 +100,36 @@ function renderOption(decision, option, cur, ctx) {
   );
 }
 
-function renderBody(decision, cur, ctx) {
-  const error = ctx.errors.get(decision.id);
+function renderStatusControl(decision, cur, ctx) {
   return el(
     'div',
-    { class: 'card-body' },
-    ctx.isOwner &&
-      danglingChoices(decision, cur.chosen).length > 0 &&
+    { class: 'segmented', role: 'group', 'aria-label': 'Status' },
+    ['open', 'decided', 'revisit'].map((s) =>
+      el(
+        'button',
+        {
+          type: 'button',
+          class: `seg${s === cur.status ? ' on' : ''}`,
+          'aria-pressed': String(s === cur.status),
+          onclick: () => ctx.onDraft(decision.id, { status: s }, true),
+        },
+        s,
+      ),
+    ),
+  );
+}
+
+function renderBody(decision, cur, ctx) {
+  const error = ctx.errors.get(decision.id);
+  const stale = ctx.isOwner ? danglingChoices(decision, cur.chosen) : [];
+  return el(
+    'div',
+    { class: 'card-body', id: `body-${decision.id}` },
+    stale.length > 0 &&
       el(
         'p',
         { class: 'error' },
-        `No longer offered: ${danglingChoices(decision, cur.chosen).join(', ')}. `,
+        `No longer offered: ${stale.join(', ')}. `,
         el(
           'button',
           { class: 'link', type: 'button', onclick: () => ctx.onDraft(decision.id, { chosen: pruneChosen(decision, cur.chosen) }, true) },
@@ -110,9 +139,9 @@ function renderBody(decision, cur, ctx) {
     decision.kind === 'choice' &&
       el(
         'div',
-        { class: 'options' },
+        { class: 'options-wrap' },
         decision.maxPicks > 1 && el('p', { class: 'hint' }, `Pick up to ${decision.maxPicks}.`),
-        decision.options.map((o) => renderOption(decision, o, cur, ctx)),
+        el('div', { class: 'options' }, decision.options.map((o) => renderOption(decision, o, cur, ctx))),
       ),
     decision.kind === 'freeform' &&
       (ctx.isOwner
@@ -135,16 +164,7 @@ function renderBody(decision, cur, ctx) {
       el(
         'div',
         { class: 'owner-row' },
-        el(
-          'label',
-          { class: 'field inline' },
-          'Status',
-          el(
-            'select',
-            { onchange: (e) => ctx.onDraft(decision.id, { status: e.target.value }, false) },
-            ['open', 'decided', 'revisit'].map((s) => el('option', { value: s, selected: s === cur.status }, s)),
-          ),
-        ),
+        renderStatusControl(decision, cur, ctx),
         el('button', { class: 'save', type: 'button', onclick: () => ctx.onSave(decision.id) }, 'Save'),
       ),
     error && el('p', { class: 'error', role: 'alert' }, error),
@@ -164,7 +184,13 @@ function renderCard(decision, ctx) {
     { class: `card status-${cur.status}${open ? ' open' : ''}`, id: `card-${decision.id}` },
     el(
       'button',
-      { class: 'card-head', type: 'button', 'aria-expanded': String(open), onclick: () => ctx.onToggle(decision.id) },
+      {
+        class: 'card-head',
+        type: 'button',
+        'aria-expanded': String(open),
+        'aria-controls': `body-${decision.id}`,
+        onclick: () => ctx.onToggle(decision.id),
+      },
       el('span', { class: 'card-title' }, decision.title),
       el(
         'span',
@@ -174,7 +200,7 @@ function renderCard(decision, ctx) {
           el(
             'span',
             { class: `chip chip-deadline${info.urgent && cur.status !== 'decided' ? ' urgent' : ''}` },
-            info.overdue ? 'overdue' : `due ${formatDeadline(decision.deadline)}`,
+            info.overdue && cur.status !== 'decided' ? 'overdue' : `due ${formatDeadline(decision.deadline)}`,
           ),
       ),
       summary && el('span', { class: 'summary' }, summary),
@@ -189,16 +215,26 @@ export function renderPhases(container, decisions, ctx) {
   for (const phase of PHASES) {
     const list = groups[phase.id];
     const progress = phaseProgress(list);
+    const state =
+      progress.total > 0 && progress.decided === progress.total ? 'done' : progress.decided > 0 ? 'going' : 'idle';
+    const percent = progress.total > 0 ? Math.round((progress.decided / progress.total) * 100) : 0;
     container.append(
       el(
         'section',
-        { class: 'phase' },
+        { class: `phase phase-${state}` },
+        el('span', { class: 'node', 'aria-hidden': 'true' }),
         el(
           'header',
           { class: 'phase-head' },
           el('h2', {}, phase.label),
           el('span', { class: 'range' }, phase.range),
-          list.length > 0 && el('span', { class: 'progress' }, `${progress.decided} of ${progress.total} decided`),
+          list.length > 0 &&
+            el(
+              'span',
+              { class: 'progress' },
+              el('span', { class: 'meter', 'aria-hidden': 'true' }, el('span', { style: `width:${percent}%` })),
+              `${progress.decided} of ${progress.total} decided`,
+            ),
         ),
         list.length === 0 && phase.placeholder && el('p', { class: 'placeholder' }, phase.placeholder),
         list.map((d) => renderCard(d, ctx)),
