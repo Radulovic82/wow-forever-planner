@@ -1,0 +1,527 @@
+{
+  "version": 1,
+  "decisions": [
+    {
+      "id": "pack",
+      "title": "Which pack to buy?",
+      "phase": "before-launch",
+      "topic": "purchase",
+      "order": 1,
+      "deadline": "2026-10-27T00:00:00+01:00",
+      "kind": "choice",
+      "maxPicks": 1,
+      "options": [
+        {
+          "id": "heroic",
+          "name": "Skyborne Heroic Pack",
+          "pros": [
+            "Cheapest pack that includes early name reservation (from 29.99 USD, secondary source)",
+            "Name reservation for up to 3 characters"
+          ],
+          "cons": [
+            "No beta access (not wanted anyway)",
+            "Only 1 invite code (not needed)"
+          ],
+          "links": [
+            {
+              "label": "Blizzard pre-purchase post",
+              "url": "https://news.blizzard.com/en-us/article/24301508/pre-purchase-world-of-warcraft-forever-upgrades-and-begin-your-next-journey-in-azeroth"
+            }
+          ],
+          "note": "Unverified: the real price, and whether a subscription is needed from day one. Check the Blizzard shop."
+        },
+        {
+          "id": "epic",
+          "name": "Skyborne Epic Pack",
+          "pros": [
+            "Adds 30 days of game time starting 4 Nov",
+            "Name reservation for up to 3 characters"
+          ],
+          "cons": [
+            "Costs more than Heroic (price to check)",
+            "Beta access and 3 invite codes are included but not wanted"
+          ],
+          "links": [
+            {
+              "label": "Blizzard pre-purchase post",
+              "url": "https://news.blizzard.com/en-us/article/24301508/pre-purchase-world-of-warcraft-forever-upgrades-and-begin-your-next-journey-in-azeroth"
+            }
+          ],
+          "note": "Unverified: the real price."
+        },
+        {
+          "id": "collection",
+          "name": "Warcraft Forever Collection",
+          "pros": [
+            "Includes name reservation, beta access and 3 invite codes",
+            "Adds 30 days of game time starting 4 Nov"
+          ],
+          "cons": [
+            "Contents and price not checked yet",
+            "Available only until 11 Jan 2027"
+          ],
+          "links": [
+            {
+              "label": "Blizzard pre-purchase post",
+              "url": "https://news.blizzard.com/en-us/article/24301508/pre-purchase-world-of-warcraft-forever-upgrades-and-begin-your-next-journey-in-azeroth"
+            }
+          ],
+          "note": "Unverified: everything beyond the perks named in the Blizzard post."
+        }
+      ]
+    },
+    {
+      "id": "race",
+      "title": "Which race: Orc, Troll or Undead?",
+      "phase": "before-launch",
+      "topic": "character",
+      "order": 2,
+      "deadline": "2026-10-27T00:00:00+01:00",
+      "kind": "choice",
+      "maxPicks": 1,
+      "options": [
+        {
+          "id": "orc",
+          "name": "Orc",
+          "pros": [
+            "Blood Fury: +10% attack power and spell power for 15 s, 2 min cooldown",
+            "Shatter Curse: removes Curses and Banes and grants immunity, 3 min cooldown",
+            "Hardiness: stun duration reduced by 20%"
+          ],
+          "cons": [
+            "The Classic pet damage racial (Command) is not in the Forever list (from memory, unverified)",
+            "Shatter Curse is mostly a PvP tool, its use in Normal PvE is unverified"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            },
+            { "label": "Blizzard hero post", "url": "https://news.blizzard.com/en-us/article/24304075/create-the-hero-you-want-to-be-in-world-of-warcraft-forever" }
+          ],
+          "note": "Starts in Durotar. Racials are from the beta client data."
+        },
+        {
+          "id": "troll",
+          "name": "Troll",
+          "pros": [
+            "Berserking: +10% cast and attack speed for 10 s every 3 min",
+            "New Warlock combination at launch (official)",
+            "Rapid Regeneration: heals 50% of max health over 6 s"
+          ],
+          "cons": [
+            "One guide ranks Troll C-tier for Warlock, below Orc and Undead (secondary opinion)",
+            "Beast Slaying (+5% damage vs beasts) is situational"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ],
+          "note": "Starts in Durotar. Racials are from the beta client data."
+        },
+        {
+          "id": "undead",
+          "name": "Undead",
+          "pros": [
+            "Will of the Forsaken removes Charm, Fear and Sleep, 2 min cooldown",
+            "Cannibalize now restores mana as well as health (official)",
+            "Touch of the Grave: 10% chance for casters to drain up to 5% of max health"
+          ],
+          "cons": [
+            "Cannibalize needs a corpse nearby",
+            "Starts in Tirisfal Glades instead of Durotar"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            },
+            { "label": "Blizzard deep dive recap", "url": "https://worldofwarcraft.blizzard.com/en-us/news/24303313/world-of-warcraft-forever-deep-dive-panel-recap" }
+          ],
+          "note": "Undead Warlock already existed in Classic. Racials are from the beta client data."
+        }
+      ]
+    },
+    {
+      "id": "names",
+      "title": "Which names to reserve? Up to 3 characters, each with a first and a second name.",
+      "phase": "before-launch",
+      "topic": "character",
+      "order": 3,
+      "deadline": "2026-11-03T23:59:00+01:00",
+      "kind": "freeform",
+      "maxPicks": 1,
+      "options": []
+    },
+    {
+      "id": "addons-ui",
+      "title": "Which addons, UI setup and keybinds before launch?",
+      "phase": "launch-prep",
+      "topic": "logistics",
+      "order": 1,
+      "deadline": "2026-11-04T22:00:00+01:00",
+      "kind": "freeform",
+      "maxPicks": 1,
+      "options": []
+    },
+    {
+      "id": "spec",
+      "title": "Which Warlock spec: Affliction, Demonology or Destruction?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 1,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 1,
+      "options": [
+        {
+          "id": "affliction",
+          "name": "Affliction",
+          "pros": [
+            "Secondary guides recommend it for leveling (opinion)",
+            "DoTs can crit in Forever (secondary)",
+            "New Pandemic: DoT crit damage up to +100% at max rank"
+          ],
+          "cons": [
+            "Heavily reworked and there is no official Warlock deep dive yet",
+            "Improved Corruption makes Corruption instant only at 5/5"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            },
+            { "label": "Talents Forever data", "url": "https://talentsforever.com/data.json" }
+          ],
+          "note": "Talent facts are from the beta build and can still change."
+        },
+        {
+          "id": "demonology",
+          "name": "Demonology",
+          "pros": [
+            "Pet centred, called a strong solo leveler by secondary guides",
+            "Demonic Knowledge: up to +100% of level as spell damage while a demon is out"
+          ],
+          "cons": [
+            "Several Classic talents removed or folded (Improved Healthstone, Fel Stamina, Improved Firestone)",
+            "Depends on the demon staying alive"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ],
+          "note": "Talent facts are from the beta build and can still change."
+        },
+        {
+          "id": "destruction",
+          "name": "Destruction",
+          "pros": [
+            "Fire and Shadow burst, Incinerate learned at level 40",
+            "Conflagrate no longer needs Improved Immolate"
+          ],
+          "cons": [
+            "Several Classic talents removed (Devastation, Emberstorm)",
+            "Shadowburn only from level 20"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ],
+          "note": "Talent facts are from the beta build and can still change."
+        }
+      ]
+    },
+    {
+      "id": "demon",
+      "title": "Which demon as the main companion?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 2,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 1,
+      "options": [
+        {
+          "id": "imp",
+          "name": "Imp",
+          "pros": [
+            "Learned at level 1 and needs no Soul Shard",
+            "Firebolt and Fire Shield; Master Demonologist gives +10% Fire damage"
+          ],
+          "cons": ["Fragile, not a tank"],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ]
+        },
+        {
+          "id": "voidwalker",
+          "name": "Voidwalker",
+          "pros": [
+            "Learned at level 10, the tank pet (Torment, Sacrifice, Consume Shadows, Suffering)",
+            "Master Demonologist: -10% Physical damage taken"
+          ],
+          "cons": ["Needs a Soul Shard to summon", "Low damage of its own"],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ],
+          "note": "One secondary guide suggests Imp for levels 1 to 10, then the Voidwalker as a personal tank."
+        },
+        {
+          "id": "succubus",
+          "name": "Succubus or Incubus",
+          "pros": [
+            "Learned at level 20, melee damage (Lash of Pain, Soothing Kiss, Seduction)",
+            "Master Demonologist: +10% Shadow damage"
+          ],
+          "cons": ["Needs a Soul Shard to summon", "Squishier than the Voidwalker"],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ],
+          "note": "The Incubus is a separate summon at level 20 with the same abilities according to secondary guides."
+        },
+        {
+          "id": "felhunter",
+          "name": "Felhunter",
+          "pros": [
+            "Learned at level 30 (class quest per secondary sources)",
+            "Devour Magic, Tainted Blood and Spell Lock (interrupt)",
+            "Master Demonologist: -10% Magic damage taken"
+          ],
+          "cons": ["Not available until level 30", "Needs a Soul Shard to summon"],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "professions",
+      "title": "Which two main professions?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 3,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 2,
+      "options": [
+        {
+          "id": "tailoring",
+          "name": "Tailoring",
+          "pros": ["Crafts cloth gear and bags for a cloth wearer"],
+          "cons": ["Eats a lot of cloth to level"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "enchanting",
+          "name": "Enchanting",
+          "pros": ["Disenchants unwanted gear and enchants your own"],
+          "cons": ["Expensive to level without a gold source"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "alchemy",
+          "name": "Alchemy",
+          "pros": ["Potions and flasks for yourself"],
+          "cons": ["Needs a steady herb supply"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "herbalism",
+          "name": "Herbalism",
+          "pros": ["Gathering that sells well and feeds Alchemy"],
+          "cons": ["Gathering only, nothing crafted for you"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "mining",
+          "name": "Mining",
+          "pros": ["Gathering that feeds Engineering and Blacksmithing"],
+          "cons": ["Gathering only, nothing crafted for you"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "engineering",
+          "name": "Engineering",
+          "pros": ["Gadgets and utility items"],
+          "cons": ["Needs ore and other parts"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "skinning",
+          "name": "Skinning",
+          "pros": ["Gathering from the creatures you already kill while leveling"],
+          "cons": ["Gathering only, nothing crafted for you"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "leatherworking",
+          "name": "Leatherworking",
+          "pros": ["Crafts leather items, pairs with Skinning"],
+          "cons": ["A Warlock wears cloth, so little for you directly"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        },
+        {
+          "id": "blacksmithing",
+          "name": "Blacksmithing",
+          "pros": ["Crafts weapons and metal items"],
+          "cons": ["A Warlock wears cloth, so little for you directly"],
+          "links": [{ "label": "forever-ref (client recipe data)", "url": "https://github.com/alcaras/forever-ref" }],
+          "note": "Classic Era knowledge, not yet checked against the Forever recipe data."
+        }
+      ]
+    },
+    {
+      "id": "route",
+      "title": "Which leveling route?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 4,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 1,
+      "options": [
+        {
+          "id": "restedxp",
+          "name": "Follow RestedXP's free Forever Horde guides",
+          "pros": ["The forever-ref route builder points at it as the route source people use (secondary)"],
+          "cons": ["Not opened or checked yet"],
+          "links": [{ "label": "forever-ref", "url": "https://github.com/alcaras/forever-ref" }]
+        },
+        {
+          "id": "zone-order",
+          "name": "Zone order from the research",
+          "pros": [
+            "Covers the new Riverglades (around levels 35 to 45) and Shen'dralas",
+            "Starts in Durotar or Tirisfal Glades, then the Barrens and Silverpine, Stonetalon, Ashenvale, Hillsbrad, Thousand Needles"
+          ],
+          "cons": [
+            "Secondary sources only, and the sites may not be independent",
+            "The Shen'dralas level range has not been announced"
+          ],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dungeons",
+      "title": "Which dungeons while leveling?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 5,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 3,
+      "options": [
+        {
+          "id": "quest-only",
+          "name": "Quest only, no dungeons",
+          "pros": ["Fully solo and on your own schedule"],
+          "cons": ["Skips the new dungeon rewards and quests"],
+          "links": []
+        },
+        {
+          "id": "ruins",
+          "name": "Ruins of Lordaeron (levels 15 to 20)",
+          "pros": ["The new Horde-only dungeon"],
+          "cons": ["Needs a group; level range varies by source (11 to 24 in one)"],
+          "links": [
+            {
+              "label": "Warlock research",
+              "url": "https://github.com/Radulovic82/wow-forever-planner/blob/research/warlock-choices/research/warlock-choices.md"
+            },
+            { "label": "Blizzard what's next recap", "url": "https://news.blizzard.com/en-us/article/24303862/world-of-warcraft-forever-whats-next-panel-recap" }
+          ]
+        },
+        {
+          "id": "mid-dungeons",
+          "name": "Mid-level new dungeons (levels 24 to 45)",
+          "pros": [
+            "Excavation Site (24 to 29), City of Dalaran (28 to 33), The Drowned City (35 to 40), Krol'dok Stronghold (40 to 45)",
+            "Open to both factions"
+          ],
+          "cons": ["Levels are from a secondary table", "Needs groups"],
+          "links": [
+            { "label": "Blizzard what's next recap", "url": "https://news.blizzard.com/en-us/article/24303862/world-of-warcraft-forever-whats-next-panel-recap" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legacy",
+      "title": "How to spend the Legacy points?",
+      "phase": "leveling",
+      "topic": "build",
+      "order": 6,
+      "deadline": null,
+      "kind": "choice",
+      "maxPicks": 4,
+      "options": [
+        {
+          "id": "talented",
+          "name": "Talented",
+          "pros": ["Talent points start earlier, from level 9 down to level 5 at 5/5"],
+          "cons": ["Costs points that other perks also want (16 to spend)"],
+          "links": [
+            { "label": "Blizzard Legacy post", "url": "https://worldofwarcraft.blizzard.com/en-us/news/24307383/get-to-know-the-world-of-warcraft-forever-legacy-system" }
+          ]
+        },
+        {
+          "id": "well-rested",
+          "name": "Well Rested",
+          "pros": ["Rested XP builds 4% faster per rank, up to 20%"],
+          "cons": ["Only helps when you log out and come back"],
+          "links": [
+            { "label": "Blizzard Legacy post", "url": "https://worldofwarcraft.blizzard.com/en-us/news/24307383/get-to-know-the-world-of-warcraft-forever-legacy-system" }
+          ]
+        },
+        {
+          "id": "field-guide",
+          "name": "Field Guide",
+          "pros": ["Named in the Adventure tree of the data export"],
+          "cons": ["Effect not read yet"],
+          "links": [{ "label": "Talents Forever data", "url": "https://talentsforever.com/data.json" }],
+          "note": "Unverified: what it does. Read the Legacy data before choosing."
+        },
+        {
+          "id": "frequent-flier",
+          "name": "Frequent Flier",
+          "pros": ["Named in the Adventure tree of the data export"],
+          "cons": ["Effect not read yet"],
+          "links": [{ "label": "Talents Forever data", "url": "https://talentsforever.com/data.json" }],
+          "note": "Unverified: what it does. Read the Legacy data before choosing. Legacy unlocks at level 25, 150 in a non-gathering profession, or exploring the whole map."
+        }
+      ]
+    }
+  ]
+}
