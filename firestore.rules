@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /decisions/{id} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == 'OWNER_UID_GOES_HERE';
+    }
+  }
+}
